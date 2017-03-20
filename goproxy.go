@@ -1,7 +1,6 @@
-package main
+package goproxy
 
 import (
-	"flag"
 	"fmt"
 	"math/rand"
 	"net/http"
@@ -122,34 +121,4 @@ func singleJoiningSlash(a, b string) string {
 		return a + "/" + b
 	}
 	return a + b
-}
-
-func main() {
-	port := flag.String("port", defaultPort, "Port for goproxy to run on.")
-	backendStr := flag.String("backend", "", "Backend url address goproxy will forward packets to.")
-	debug := flag.Bool("debug", true, "If enable debug mode. If so, application will print each request detail to stdout.")
-	flag.Parse()
-
-	if *backendStr == "" {
-		fmt.Println("Must provide target url.\nUse --help to check usage.")
-		return
-	}
-
-	backends := strings.Split(*backendStr, ",")
-	config := &ProxyConfig{
-		Targets: backends,
-		Debug:   *debug,
-		Prefix:  "/networks/",
-	}
-
-	proxy, err := NewProxy(config)
-	if err != nil {
-		fmt.Println("Can not setup proxy. Exit...")
-		return
-	}
-
-	http.Handle("/networks/", proxy)
-	fmt.Printf("Start Serving at %s\n", *port)
-	fmt.Printf("Packets will forward to %s\n\n", backends)
-	http.ListenAndServe(*port, nil)
 }
